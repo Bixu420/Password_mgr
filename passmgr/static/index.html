@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Password Manager</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- NOTE: paths start with /static/ so FastAPI serves them correctly -->
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body class="bg-bg text-text min-h-screen">
+
+  <div class="app-shell">
+
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="app-title-group">
+        <div class="logo-badge">
+          <svg viewBox="0 0 24 24">
+            <path d="M17 10V8a5 5 0 0 0-10 0v2"></path>
+            <rect x="5" y="10" width="14" height="10" rx="2"></rect>
+            <circle cx="12" cy="15" r="1.5"></circle>
+          </svg>
+        </div>
+
+        <div class="app-title-text">
+          <h1>Password Manager</h1>
+          <p>Secure vault, encrypted server-side.</p>
+        </div>
+      </div>
+
+      <div class="badge-env">
+        <span class="badge-dot"></span>
+        <span>Local HTTPS · Encrypted</span>
+      </div>
+    </header>
+
+    <!-- AUTH CARD -->
+    <section id="auth-card" class="card">
+      <div>
+        <div class="card-title text-xl">Welcome</div>
+        <div class="card-subtitle">Log in or register</div>
+      </div>
+
+      <div class="grid-2 mt-4">
+
+        <!-- Register -->
+        <div>
+          <div class="card-title text-lg mb-1">Register</div>
+
+          <div class="field">
+            <label>Username</label>
+            <input id="reg-username" class="input">
+          </div>
+
+          <div class="field">
+            <label>Master password</label>
+            <input id="reg-password" type="password" class="input">
+          </div>
+
+          <button id="reg-submit" class="btn btn-primary mt-1">Create account</button>
+          <div id="reg-status" class="status"></div>
+        </div>
+
+        <!-- Login -->
+        <div>
+          <div class="card-title text-lg mb-1">Login</div>
+
+          <div class="field">
+            <label>Username</label>
+            <input id="login-username" class="input">
+          </div>
+
+          <div class="field">
+            <label>Password</label>
+            <input id="login-password" type="password" class="input">
+          </div>
+
+          <button id="login-submit" class="btn btn-primary mt-1">Login</button>
+          <div id="login-status" class="status"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- MAIN APP CARD -->
+    <section id="app-card" class="card hidden">
+      <div class="flex justify-between items-center">
+        <div>
+          <div class="card-title text-xl">Your entries</div>
+          <div id="user-pill" class="pill-small mt-1"></div>
+        </div>
+
+        <button id="logout-btn" class="btn btn-ghost">Logout</button>
+      </div>
+
+      <div class="grid-main mt-4">
+
+        <!-- LEFT PANE -->
+        <div class="flex flex-col gap-4">
+
+          <!-- ADD ENTRY -->
+          <div>
+            <div class="card-title mb-1 text-base">Add / update entry</div>
+
+            <div class="field">
+              <label>Name</label>
+              <input id="entry-name" class="input">
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Username</label>
+                <input id="entry-username" class="input">
+              </div>
+              <div class="field">
+                <label>Password</label>
+                <input id="entry-password" class="input" type="password">
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>URL</label>
+                <input id="entry-url" class="input">
+              </div>
+              <div class="field">
+                <label>Notes</label>
+                <textarea id="entry-notes" class="input"></textarea>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <button id="entry-save-btn" class="btn btn-primary">Save</button>
+              <button id="password-generate-btn" class="btn btn-ghost">Generate</button>
+            </div>
+
+            <div id="entry-status" class="status"></div>
+          </div>
+
+          <!-- SEARCH -->
+          <div class="search-row">
+            <div class="search-input-wrapper">
+              <svg viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="6"></circle>
+                <line x1="16" y1="16" x2="21" y2="21"></line>
+              </svg>
+              <input id="search-input" class="search-input" placeholder="Search...">
+            </div>
+            <span id="entry-count" class="pill-small"></span>
+          </div>
+
+          <!-- TABLE -->
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Username</th>
+                  <th>URL</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="entries-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- RIGHT PANE -->
+        <div class="flex flex-col gap-4">
+
+          <div class="detail-panel">
+            <div class="detail-title">Details</div>
+            <div id="selected-entry" class="detail-body muted">
+              Click an entry to view it.
+            </div>
+
+            <div class="detail-actions">
+              <button id="copy-username-btn" class="btn btn-ghost">Copy user</button>
+              <button id="copy-password-btn" class="btn btn-ghost">Copy pass</button>
+            </div>
+          </div>
+
+          <div class="detail-panel">
+            <div class="detail-title">Session</div>
+            <div id="session-info" class="detail-body muted"></div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- NOTE: also under /static/ -->
+  <script src="/static/index.js" defer></script>
+</body>
+</html>
