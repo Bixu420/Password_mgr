@@ -145,3 +145,24 @@
 2025-11-25 14:54:05,893 [INFO] Entry viewed user_id=1 entry_id=1 ip=172.24.208.1
 2025-11-25 14:54:14,980 [INFO] Entry deleted user_id=1 entry_id=1 ip=172.24.208.1
 2025-11-25 14:54:14,983 [INFO] Entries listed user_id=1 count=0 ip=172.24.208.1
+2025-11-29 15:52:51,421 [INFO] Logger initialized
+2025-11-29 15:52:51,580 [INFO] [MIGRATION] Database schema up-to-date
+2025-11-29 15:53:30,932 [INFO] User registered username=alice ip=172.24.208.1
+2025-11-29 15:53:38,661 [INFO] Login successful username=alice ip=172.24.208.1
+2025-11-29 15:53:38,666 [INFO] Entries listed user_id=4 count=0 ip=172.24.208.1
+2025-11-29 15:56:57,527 [INFO] Login successful username=alice ip=172.24.208.1
+2025-11-29 15:56:57,580 [INFO] Entries listed user_id=4 count=0 ip=172.24.208.1
+2025-11-29 15:57:10,509 [INFO] Logout username=alice user_id=4 ip=172.24.208.1
+2025-11-29 15:57:33,657 [WARNING] Login failed username=alice ip=172.24.208.1
+2025-11-29 15:57:53,077 [WARNING] Login failed username=bixu ip=172.24.208.1
+2025-11-29 15:57:59,561 [INFO] Login successful username=bixu ip=172.24.208.1
+2025-11-29 15:57:59,610 [INFO] Entries listed user_id=1 count=0 ip=172.24.208.1
+2025-11-29 15:58:25,067 [INFO] Entry created user_id=1 entry_id=1 name=test ip=172.24.208.1
+2025-11-29 15:58:42,245 [INFO] Entries listed user_id=1 count=1 ip=172.24.208.1
+2025-11-29 16:01:00,450 [INFO] Login successful username=bixu ip=172.24.208.1
+2025-11-29 16:01:00,454 [INFO] Entries listed user_id=1 count=1 ip=172.24.208.1
+2025-11-29 16:01:56,663 [INFO] Logout username=bixu user_id=1 ip=172.24.208.1
+2025-11-29 16:01:57,736 [INFO] Login successful username=bixu ip=172.24.208.1
+2025-11-29 16:01:57,741 [INFO] Entries listed user_id=1 count=1 ip=172.24.208.1
+2025-11-29 16:04:18,820 [INFO] Entry deleted user_id=1 entry_id=1 ip=172.24.208.1
+2025-11-29 16:04:18,824 [INFO] Entries listed user_id=1 count=0 ip=172.24.208.1
