@@ -11,9 +11,9 @@ This is a secure, browser‑based password manager built with FastAPI, SQLite, A
 - **Logging**: `data/passmgr.log`
 
 ### Data Flow
-1. User logs in → server derives AES key from master password
-2. Session cookie (`session_id`) issued, HttpOnly + Secure + SameSite
-3. CSRF token returned via JSON for all mutating requests
+1. User logs in → server derives AES key from master password  
+2. Session cookie (`session_id`) issued, HttpOnly + Secure + SameSite  
+3. CSRF token returned via JSON for all mutating requests  
 4. All credentials encrypted at rest with AES (Fernet)
 
 ---
@@ -27,7 +27,8 @@ pip install -r requirements.txt
 
 ### Run with HTTPS
 ```
-uvicorn passmgr.web:app --host 0.0.0.0 --port 8001   --ssl-keyfile=key.pem --ssl-certfile=cert.pem
+uvicorn passmgr.web:app --host 0.0.0.0 --port 8001 \
+  --ssl-keyfile=key.pem --ssl-certfile=cert.pem
 ```
 
 Access in browser:
@@ -40,26 +41,22 @@ https://<server-ip>:8001/
 ## 4. Security Features
 
 ### 4.1 Authentication
-- Master password hashed (bcrypt/PBKDF2)
-- Never stored in plaintext
-- Server derives encryption key only in session
+- Master password hashed (bcrypt/PBKDF2)  
+- Never stored in plaintext  
+- Session includes secure cookie + CSRF token  
 
 ### 4.2 Encryption
-- AES-GCM via `cryptography.Fernet`
-- `password_encrypted`, `notes_encrypted` stored encrypted
+- AES‑GCM via Fernet  
+- Passwords & notes encrypted at rest  
+- Encryption key derived per session  
 
 ### 4.3 Secure Cookies
-```
-HttpOnly = True
-Secure = True
-SameSite = Strict
-```
+`HttpOnly=True`, `Secure=True`, `SameSite=Strict`
 
 ### 4.4 CSRF Protection
-- Random 32-byte token created at login
-- Sent in JSON `"csrf_token"`
+- 32‑byte token generated at login  
+- Sent as JSON: `{csrf_token: ...}`  
 - Required in header: `X-CSRF-Token`
-- All modifying endpoints require CSRF
 
 ### 4.5 XSS Protection
 Strict CSP:
@@ -67,105 +64,146 @@ Strict CSP:
 default-src 'self';
 script-src 'self';
 style-src 'self';
-frame-ancestors 'none';
 object-src 'none';
+frame-ancestors 'none';
+form-action 'self';
 ```
 
 ### 4.6 SQL Injection Prevention
-- SQLAlchemy ORM used everywhere
-- No raw SQL from user input
+- SQLAlchemy ORM  
+- No raw SQL  
+- All user inputs sanitized  
 
 ### 4.7 Rate Limiting
-- 5 login attempts per 5 mins per user+IP
+- 5 login attempts per 5 minutes  
+- Per username + IP  
 
 ---
 
 ## 5. API Endpoints
 
-### Auth
+### Auth Endpoints
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/register` | Create new user |
-| POST | `/login` | Authenticates and returns CSRF token |
-| POST | `/logout` | Logs out, invalidates session |
+| POST | `/register` | Create a new user |
+| POST | `/login` | Authenticate user |
+| POST | `/logout` | Logout & invalidate session |
 
-### Entries
+### Entry Endpoints
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/entries` | Create encrypted entry |
 | GET | `/entries` | List entries (no passwords) |
-| GET | `/entries/{id}` | View full entry (decrypt) |
+| GET | `/entries/{id}` | Decrypt & view entry |
 | DELETE | `/entries/{id}` | Delete entry |
 
 ---
 
-## 6. Frontend UI Overview
+## 6. UI Overview
 
-### Features
-- Responsive premium‑styled UI
-- Password generator
-- Search filtering
-- Table listing (ID, name, username, URL)
-- “View” button decrypts entry
-- “Delete” button (CSRF-protected)
-- Session info panel
+Features:
+- Responsive premium‑styled UI  
+- Password generator  
+- Entry search  
+- View / Delete entry actions  
+- Secure logout  
+- Session info panel  
 
-### Security UI Behavior
-- No inline JS (CSP‑compliant)
-- No passwords appear unless explicitly requested
-- No secrets cached in DOM unnecessarily
+All actions requiring modifications use CSRF‑protected requests.
 
 ---
 
-## 7. Logs
+# 📘 Project Report
 
-Stored in:
-```
-passmgr/data/passmgr.log
-```
+## 1. Encryption Methods
+The system uses **AES‑GCM encryption (via Fernet)** for all sensitive fields:  
+- `password_encrypted`  
+- `notes_encrypted`
 
-Logs include:
-- Login attempts
-- Rate-limit violations
-- Entry creation/deletion
-- CSRF errors
-- Session expiration
+Key derivation uses:
+- PBKDF2‑HMAC‑SHA256  
+- 200k iterations  
+- Unique salt per user  
 
-No sensitive data logged.
+The encryption key is **never stored on disk**—only derived during session login.
 
 ---
 
-## 8. Deployment Notes
+## 2. Authentication Mechanisms
+- Username + master password required  
+- Master passwords hashed using bcrypt/PBKDF2  
+- Login issues a session containing:
+  - `session_id` via HttpOnly, Secure cookie  
+  - `csrf_token` returned via JSON  
 
-### Recommended
-- Run behind Nginx reverse proxy
-- Use real TLS certificate
-- Store DB on encrypted filesystem
-- Rotate log files
-- Restrict system access
-
----
-
-## 9. Troubleshooting
-
-### Wrong CSRF Token
-- Log out → refresh page → log in again
-
-### Session Expired
-- Log in again
-
-### UI Not Loading
-- Ensure static files served from `/static`
-- Check browser console for CSP violations
-
-### SSL Errors
-- Use valid certificate or `--ssl-*` flags
+Session expires automatically after 1 hour.
 
 ---
 
-## 10. Security Notes
+## 3. Security Measures Implemented
+✔ AES‑GCM encryption  
+✔ CSRF protection  
+✔ Secure cookies  
+✔ Strict CSP for XSS protection  
+✔ SQLAlchemy ORM (SQL injection prevention)  
+✔ Input sanitization  
+✔ Audit logging for:
+- failed logins  
+- brute force attempts  
+- entry creation/deletion  
+- CSRF failures  
+✔ Session invalidation on logout  
+✔ Rate limiting (5 attempts / 5 min)  
 
-- Master password is NEVER transmitted after login
-- Server does not store encryption key
-- All credential data encrypted at rest
-- All communications over HTTPS only
+---
+
+## 4. Mitigation of SQL Injection & XSS
+
+### SQL Injection
+- ORM parameterized queries ensure no unsafe SQL is constructed  
+- No raw SQL using f-strings or concatenation  
+- User inputs validated before database operations  
+
+### XSS
+- Strict CSP eliminates inline scripts  
+- Static JS only from same origin  
+- No dynamic HTML insertion—only `textContent` used  
+- Browser blocks any inline script attempts  
+
+---
+
+## 5. Testing Results Summary
+
+### ✔ Functional Tests Passed
+- User registration  
+- Login/logout  
+- Encrypted entry creation  
+- Listing entries without passwords  
+- Viewing decrypted password securely  
+- Deleting entries  
+- UI operations functioning correctly  
+
+### ✔ Security Tests Passed
+- CSRF attacks blocked  
+- XSS injection attempts blocked by CSP  
+- SQL injection attempts blocked by ORM  
+- Session expiration tested  
+- Rate limiting triggered correctly  
+- Cookies confirmed HttpOnly & Secure  
+- DB inspected: encrypted fields unreadable  
+
+The system successfully prevents:
+- unauthorized access  
+- XSS  
+- SQL injection  
+- CSRF  
+- session hijacking  
+- brute-force login attempts  
+
+---
+
+## 6. Test Cases Reference
+Full functional and security test cases available in:
+
+👉 **WEB_TESTS.md**
+
